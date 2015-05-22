@@ -1,0 +1,37 @@
+art
+data/
+    convos/
+        [hash].convo.txt
+        ...
+    items/
+        Quest/
+            [name].item.txt
+    maps/
+        [name].srm.txt
+    scenes/
+        [name].srt.txt
+            triggers
+                idRef
+                    id (String)
+                name (String)
+                events
+                conditions
+                actions
+                elseActions
+                isActive (Bool)
+                is_oneshot (Bool)
+            regions
+            characters
+            variables
+            mapEvents:
+            senseTags:
+            goals
+            worldMapLocation (?)
+            mapName:
+            parentStory: (?)
+            scene_title:
+            scene_subtitle:
+            scene_image:
+    scratchpad/
+    stories/
+        story.story.txt
