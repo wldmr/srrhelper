@@ -1,0 +1,11 @@
+# Requirements #
+
+## Functional ##
+
+* MUST read Shadowrun Returns content pack directories
+* MUST create graphs for items in these directories
+* MUST rebuild graph(s) when underlying content pack changes
+* MUST be cross-platform
+* MUST have graphical user interface
+
+## Non-Functional ##

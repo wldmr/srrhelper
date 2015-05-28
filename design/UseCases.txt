@@ -1,0 +1,55 @@
+# Use Case: Load Contentpack #
+
+User chooses a **content pack** from the **file system**. Program displays an **outline** of the available **items** in the content pack (**scenes**, **dialogs**, etc).
+
+After loading, program displays an **outline** of the **items** in the **content pack**.
+
+Items displayed are:
+
+* Conversations
+	* Conversation Items
+* (Quest-)Items
+* Scenes
+	* Triggers
+		* Function calls
+			* Function Operands
+	* Regions
+	* Characters
+	* Variables
+	* MapEvents
+	* SenseTags
+	* Goal
+
+If another content pack was already loaded, replace it with the new one.
+
+# Use Case: Select Items #
+
+User chooses one or more **items**, program displays a **graph** of the item(s), including all its **sub-items** and **related items**.
+
+Such a graph displays a **node** for every item in the **hierarchy**, and **edges** between nodes when one item references the other.
+
+**Foreign Items**, i.e. items referenced but residing outside the currently displayed hierarchy (e.g. map props when viewing a scene graph) are also included, but rendered visually as 'foreign'.
+
+# Use Case: Refresh View #
+
+Program automatically detects **changes** to the **source directory** and refreshes the **outline** and any currently displayed **graphs** accordingly.
+
+# Diagrams #
+
+	@startuml
+	left to right direction
+	
+	Actor :User:
+	
+	Rectangle SRRCpack {
+		(Load Contentpack)
+		(Select Items)
+		(CPack Watcher) <<Automatic Actor>> -> (Refresh View) : Content\nchanged
+		
+		(Refresh View) -> :User:
+		(Load Contentpack) .r.> (Select Items)
+	}
+	
+	:User: --> (Load Contentpack)
+	:User: --> (Select Items)
+	@enduml
