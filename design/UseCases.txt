@@ -37,19 +37,22 @@ Program automatically detects **changes** to the **source directory** and refres
 # Diagrams #
 
 	@startuml
-	left to right direction
 	
 	Actor :User:
 	
 	Rectangle SRRCpack {
 		(Load Contentpack)
 		(Select Items)
-		(CPack Watcher) <<Automatic Actor>> -> (Refresh View) : Content\nchanged
+		(Refresh View)
 		
-		(Refresh View) -> :User:
-		(Load Contentpack) .r.> (Select Items)
+		(Refresh View) .> :User: : display
+		(Load Contentpack) .r.> (Select Items) : then
 	}
 	
 	:User: --> (Load Contentpack)
 	:User: --> (Select Items)
+	
+	Rectangle "Content Pack" <<External File>> {
+		(Files Change) .left.> (Refresh View)
+	}
 	@enduml

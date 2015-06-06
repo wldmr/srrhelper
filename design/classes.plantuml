@@ -1,0 +1,18 @@
+@startuml
+
+package Application {
+	!include classes_app.plantuml
+}
+
+package Graph {
+	!include classes_graph.plantuml
+}
+
+package UI {
+	!include classes_ui.plantuml
+}
+
+
+ContentPackController -- UI
+ContentPackController -- Layouter
+@enduml

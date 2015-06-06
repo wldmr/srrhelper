@@ -1,0 +1,30 @@
+@startuml
+interface UI {
+	.. Commands ..
+	selectContentpack():
+	displayHierarchy()
+	selectItems()
+	displayGraph()
+	quit()
+}
+
+
+UI <|-- JavaFxUI
+UI <|-- BatchUI
+note bottom: Creates all graphs as static files
+UI <|-- TerminalUI
+
+UI - Command : creates >
+
+interface Command {
+	execute()
+}
+Command <|--- SelectContentpack
+Command <|--- DisplayHierarchy
+Command <|--- SelectItems
+Command <|--- DisplayGraph
+Command <|--- Quit
+
+ContentPackController -- Command
+
+@enduml

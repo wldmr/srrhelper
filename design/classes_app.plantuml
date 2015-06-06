@@ -1,0 +1,46 @@
+@startuml
+class Main {
+	{static} main(args)
+}
+Main -- ContentPackController : setup >
+
+class ContentPackController {
+	- view: UI
+	- model: Tree
+
+	selectContentpack():
+	displayHierarchy()
+	selectItems()
+	displayGraph()
+	quit()
+}
+ContentPackController *-- Tree : toplevel
+ContentPackController -- Builder : uses >
+
+class Builder {
+	- state : Tree
+	+ build(path:String) : Tree
+	- handleLine(String)
+}
+Builder -- Tree : builds >
+
+abstract Node {
+	key: String
+	parent: Node
+}
+Node <|-- Leaf
+Node <|-- Tree
+
+class Leaf {
+	value: String
+}
+class Tree {
+	nodes: Map[String, Node*]
+	
+	add(String) : Tree
+	add(String, String) : Leaf
+	
+	find(String): Node?
+}
+
+@enduml

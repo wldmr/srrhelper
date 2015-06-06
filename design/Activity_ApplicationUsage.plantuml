@@ -1,0 +1,23 @@
+@startuml
+
+Start
+
+	:Start Application;
+
+	While (CWD is Contentpack?) is (no)
+		:Prompt for directory;
+	endwhile (yes)
+	
+	:Load Contentpack;
+
+
+While ( )
+	:Select Items;
+	:Generate Graph;
+	:Display Graph;
+Endwhile (quit)
+
+:Shutdown Application;
+Stop
+
+@enduml

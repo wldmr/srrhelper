@@ -1,0 +1,38 @@
+@startuml
+
+
+package Datamodel <<Rect>> {
+	object ContentPack {
+		Load Content Pack
+		Detect File Changes
+		Propagate File Changes
+	}
+	object Item {
+		(Represents Object Hierarchy)
+		create graph of self
+	}
+}
+
+object Grapher {
+	Render Item(s) to Graph
+}
+
+object UI {
+	display Outline
+	select Item(s) to display
+	display Graph(s)
+}
+
+''' Relationships '''
+
+
+ContentPack *- Item : Top Level Items
+ContentPack -> UI : update
+
+Item "1" o- "*" Item
+
+Grapher o- Item
+
+UI - Grapher
+
+@enduml

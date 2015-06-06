@@ -1,0 +1,57 @@
+@startuml
+
+class Graph {
+	nodes: GraphNode*
+	edges: GraphEdge*
+	
+	toDot(): String
+	toFile(path)
+}
+Graph *- GraphNode
+Graph *- GraphEdge
+
+class GraphPart {
+	- attributes: Map[String, String]
+	
+	getAttribute(String): String
+	setAttribute(String, String)
+}
+GraphPart <|-- GraphNode
+GraphPart <|-- GraphEdge
+
+class GraphNode {
+	id: String
+}
+class GraphEdge {
+	from: String
+	to: String
+}
+
+class Layouter {
+	layout(Items*): Graph
+}
+Layouter - Graph : creates >
+Layouter -- LayoutStrategy : uses >
+
+note "Strategy pattern" as NStrategy
+Layouter .. NStrategy
+NStrategy .. LayoutStrategy
+NStrategy .. Graph
+
+abstract LayoutStrategy {
+	- graph: Graph
+	- cpack: Tree
+	
+	{abstract} getApplicability(): String
+	{abstract} layout(id:String, external=false)
+}
+LayoutStrategy <|-- SceneLayoutStrategy
+LayoutStrategy <|-- TriggerLayoutStrategy
+LayoutStrategy <|-- ConversationLayoutStrategy 
+LayoutStrategy <|-- "…LayoutStrategy"
+
+LayoutStrategy -- Graph : modifies >
+
+LayoutStrategy . Tree
+
+@enduml
