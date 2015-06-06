@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CPack {
+public class Parsing {
 
 	private static enum RE {
 		group_start ("^\\s*(\\w+) \\{$"),
@@ -38,6 +39,7 @@ public class CPack {
 			this.parent = parent;
 			this.key = key;
 		}
+		
 	}
 
 	public static class Leaf extends Node {
@@ -46,6 +48,10 @@ public class CPack {
 		public Leaf(Tree parent, String key, String value) {
 			super(parent, key);
 			this.value = value;
+		}
+		
+		public String getValue() {
+			return value;
 		}
 
 	}
@@ -79,6 +85,37 @@ public class CPack {
 			add(newTree);
 			return newTree;
 		}
+		
+		public List<Node> getNodes(String key) {
+			return nodes.get(key);
+		}
+		
+		public Node getNode(String key, int index) {
+			return getNodes(key).get(index);
+		}
+		
+		public Tree getTree(String key, int index) {
+			return (Tree) getNode(key, index);
+		}
+		
+		public Tree getTree(String key) {
+			return getTree(key, 0);
+		}
+		
+		public String getAttribute(String key, int index) {
+			Leaf l = (Leaf) getNode(key, index);
+			return l.value;
+		}
+		
+		public String getAttribute(String key) {
+			return getAttribute(key, 0);
+		}
+
+		public String[] getNodeTypes() {
+			Set<String> types = nodes.keySet();
+			return types.toArray(new String[types.size()]);
+		}
+		
 	}
 
 	public static class Builder {
@@ -94,7 +131,7 @@ public class CPack {
 
 			String strLine;
 
-			Tree root = new Tree(null, filename);
+			Tree root = new Tree(null, getFiletype(filename));
 
 			// Read File Line By Line
 			try (	FileReader fr = new FileReader(filename);
@@ -111,6 +148,13 @@ public class CPack {
 				throw (e);
 			}
 		}
+		
+		private static String getFiletype(String path) {
+			String[] parts = path.split("\\.");
+			// we expect filenames like yadda.TYPE.txt
+			// so we extract TYPE
+			return parts[parts.length-2];
+		}
 
 		private void handleLine(String strLine) {
 			for (RE re : RE.values()) {
@@ -118,20 +162,35 @@ public class CPack {
 				if (m.matches()) {
 					switch (re.name()) {
 					case "group_start":
-						state = state.add(m.group(1));
+						startGroup(m.group(1));
 						break;
+						
 					case "group_end":
-						state = state.parent;
+						endGroup();
 						break;
+						
 					case "property_string":
 					case "property_value":
-						state.add(m.group(1), m.group(2));
+						addValue(m.group(1), m.group(2));
 						break;
+						
 					default:
 						System.out.println("WUT?!");
 					}
 				}
 			}
+		}
+
+		public void addValue(String key, String value) {
+			state.add(key, value);
+		}
+		
+		public void startGroup(String key) {
+			state = state.add(key);
+		}
+		
+		public void endGroup() {
+			state = state.parent;
 		}
 	}
 
