@@ -1,4 +1,4 @@
-package net.wldmr.srrcpack;
+package net.wldmr.srraide;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

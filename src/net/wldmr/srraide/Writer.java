@@ -1,4 +1,4 @@
-package net.wldmr.srrcpack;
+package net.wldmr.srraide;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -7,25 +7,30 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-public class Main {
+import net.wldmr.srraide.Parsing.Node;
+import net.wldmr.srraide.Parsing.Tree;
+
+public class Writer {
+
+	private Tree tree;
 	
-	public static void main(String[] args) throws IOException {
-		Parsing.Tree tree = (new Parsing.Builder()).build(args[0]);
-		Layout.Layouter layouter = new Layout.Layouter();
-		Layout.Graph graph = layouter.layout(tree);
-		writeGraph(graph, "c:\\Users\\wldmr_2\\eclipse_workspace\\SRR_Cpack\\UnderGroundClub.srt.pdf");
+	public Tree getTree() {
+		return tree;
+	}
+
+	public Writer(Tree tree) {
+		super();
+		this.tree = tree;
 	}
 	
-	public static void writeGraph(Layout.Graph graph, String path) throws IOException {
-		String[] parts = path.split("\\.");
-		String format = parts[parts.length-1];
+	public void writeGraph(String path) throws IOException {
+		String format = Util.fileExtension(path);
 		ProcessBuilder builder = new ProcessBuilder("dot", "-T"+format, "-o"+path);
 		builder.directory(new File(path).getParentFile());
 		
 		Process process = builder.start();
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-		String dot = graph.toDot();
-		//System.out.println(dot);
+		String dot = this.toString();
 		bw.write(dot);
 		bw.close();
 		
@@ -42,5 +47,19 @@ public class Main {
 		}
 		br.close();
 	}
+	
+	public String toString() {
+		
+		Layout.Graph graph = new Layout.Graph();
 
+		Layout.Node node = graph.addNode("source");
+		node.setAttribute("label", "The Sauce");
+		node.setAttribute("fontsize", 18);
+		node.setAttribute("shape", "rectangle");
+		node.setAttribute("style", "rounded");
+
+		Layout.Edge edge = graph.addEdge("source", "target");
+
+		return graph.toDot();
+	}
 }
