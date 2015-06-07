@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class Ops {
 	private static abstract class Op {}
@@ -18,6 +17,7 @@ public class Ops {
 	@FunctionName("On Item Interaction")
 	public static class OnItemInteraction extends Event {};
 
+	/** <h1>FunctionName Annotation</h1> */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface FunctionName { String value(); }
@@ -42,15 +42,9 @@ public class Ops {
 			}
 		}
 		
-		public static void process(Class<?>[] clazzez) {
-			for (Class<?> clazz : clazzez)
-				process(clazz);
-		}
-		
-		public static void showAll() {
-			for (Entry<String, Class<?>> entry : name2class.entrySet()) {
-				System.out.println(entry.getKey() + " -> " + entry.getValue());
-			}
+		public static void processNested(Class<?> clazz) {
+			for (Class<?> nested : clazz.getClasses())
+				process(nested);
 		}
 	}
 }

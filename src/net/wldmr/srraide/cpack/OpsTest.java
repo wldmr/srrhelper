@@ -11,8 +11,7 @@ public class OpsTest extends Ops {
 	
 	//@BeforeClass
 	public static void setUpClass() throws Exception {
-		Ops.FunctionNameResolver.process(Ops.class.getClasses());
-		Ops.FunctionNameResolver.showAll();
+		Ops.FunctionNameResolver.processNested(Ops.class);
 	}
 
 	@Before
