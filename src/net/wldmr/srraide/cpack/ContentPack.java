@@ -1,6 +1,6 @@
 package net.wldmr.srraide.cpack;
 
-import java.awt.Container;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContentPack extends CPackFile {
@@ -15,7 +15,10 @@ public class ContentPack extends CPackFile {
 	//private List<Conversation> convos;
 	//private List<Item> items;
 	//private List<Map> maps;
-	private List<Scene> scenes;
+
+	private List<Scene> scenes = new ArrayList<>();
+	public List<Scene> getScenes() { return scenes; }
+
 	//private List<Scratchpad> scratchpad;
 	//private List<Story> stories;
 }

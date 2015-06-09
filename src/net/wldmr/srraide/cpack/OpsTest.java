@@ -4,22 +4,31 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class OpsTest extends Ops {
 	
-	//@BeforeClass
-	public static void setUpClass() throws Exception {
-		Ops.FunctionNameResolver.processNested(Ops.class);
-	}
-
 	@Before
 	public void setUp() throws Exception {
 	}
 
 	@After
 	public void tearDown() throws Exception {
+	}
+	
+	@Test
+	public void testNesting() {
+		MakeString m = new MakeString();
+		m.value(new Values.Value<>("Some String, OK?"));
+		
+		TakeString t = new TakeString();
+		t.arg1(m);
+		System.out.println(t);
+	}
+	
+	@Test
+	public void testAllOps() {
+		Ops.FunctionNameResolver.processNested(Ops.class);
 	}
 
 	@Test
@@ -31,5 +40,4 @@ public class OpsTest extends Ops {
 		assertEquals(Ops.FunctionNameResolver.get(ShitClass.class), "shit");
 		assertEquals(Ops.FunctionNameResolver.get("shit"), ShitClass.class);
 	}
-
 }

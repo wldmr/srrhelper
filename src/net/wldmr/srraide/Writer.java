@@ -24,7 +24,8 @@ public class Writer {
 	}
 	
 	public void writeGraph(String path) throws IOException {
-		String format = Util.fileExtension(path);
+		String[] parts = path.split("\\.");
+		String format = parts[parts.length-1];
 		ProcessBuilder builder = new ProcessBuilder("dot", "-T"+format, "-o"+path);
 		builder.directory(new File(path).getParentFile());
 		
