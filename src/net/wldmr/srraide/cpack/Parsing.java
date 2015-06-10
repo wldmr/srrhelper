@@ -8,16 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Parsing {
 
 	private static enum RE {
-		group_start ("^\\s*(\\w+) \\{$"),
-		group_end ("^\\s*\\}$"),
-		property_string ("^\\s*(\\w+): \"([^\"]*)\"$"),
-		property_value ("^\\s*(\\w+): (\\w+)$");
+		group_start ("^\\s*(\\w+) \\{\\s*$"),
+		group_end ("^\\s*\\}\\s*$"),
+		property_string ("^\\s*(\\w+): \"([^\"]*)\"\\s*$"),
+		property_value ("^\\s*(\\w+): (\\w+)\\s*$");
 
 		private final Pattern pattern;
 
@@ -30,122 +31,115 @@ public class Parsing {
 		}
 	}
 
-	public static abstract class Node {
-		Tree parent;
-		String key;
+	public static class Node {
 
-		public Node(Tree parent, String key) {
-			super();
-			this.parent = parent;
+		private String key = null;
+		// While this Node implementation can have both data and children at the same time,
+		// the SRR file format does not (as of 2015-06-11). Just something to be aware of.
+		private String data = null;
+		private Children children = null;
+
+		@SuppressWarnings("serial") // Compiler complained about unserializable somethingorother ...
+		private class Children extends HashMap<String, List<Node>> {}
+
+		public Node(String key, String value) {
 			this.key = key;
-		}
-		
-	}
-
-	public static class Leaf extends Node {
-		String value;
-
-		public Leaf(Tree parent, String key, String value) {
-			super(parent, key);
-			this.value = value;
-		}
-		
-		public String getValue() {
-			return value;
+			this.data = value;
 		}
 
-	}
-
-	public static class Tree extends Node {
-		Map<String, List<Node>> nodes;
-
-		public Tree(Tree parent, String key) {
-			super(parent, key);
-			this.nodes = new HashMap<String, List<Node>>();
+		public Node(String key) {
+			this.key = key;
+			this.children = new Children();
 		}
 
-		private void add(Node node) {
-			if (nodes.containsKey(node.key)) {
-				nodes.get(node.key).add(node);
+		public String getData() {
+			assert data != null : "Data should not be null";
+			return data;
+		}
+
+		public String getKey() { return key; }
+
+		/** Returns the node that was passed in, for convenience. */
+		private Node add(Node node) {
+			if (children.containsKey(node.key)) {
+				List<Node> lst = children.get(node.key);
+				lst.add(node);
 			} else {
 				List<Node> newList = new ArrayList<>();
 				newList.add(node);
-				nodes.put(node.key, newList);
+				children.put(node.key, newList);
 			}
+			return node;
 		}
 
-		public Leaf add(String key, String value) {
-			Leaf leaf = new Leaf(this, key, value);
-			add(leaf);
-			return leaf;
+		public Node newChildren(String key) {
+			return add(new Node(key));
 		}
 
-		public Tree add(String key) {
-			Tree newTree = new Tree(this, key);
-			add(newTree);
-			return newTree;
-		}
-		
-		public List<Node> getNodes(String key) {
-			return nodes.get(key);
-		}
-		
-		public Node getNode(String key, int index) {
-			return getNodes(key).get(index);
-		}
-		
-		public Tree getTree(String key, int index) {
-			return (Tree) getNode(key, index);
-		}
-		
-		public Tree getTree(String key) {
-			return getTree(key, 0);
-		}
-		
-		public String getAttribute(String key, int index) {
-			Leaf l = (Leaf) getNode(key, index);
-			return l.value;
-		}
-		
-		public String getAttribute(String key) {
-			return getAttribute(key, 0);
+		// Is void to reinforce that it is a terminal
+		// and nothing interesting can happen with this node.
+		public void newValue(String key, String value) {
+			add(new Node(key, value));
 		}
 
-		public String[] getNodeTypes() {
-			Set<String> types = nodes.keySet();
+		public Node[] getChildren(String key) {
+			List<Node> ns = children.get(key);
+			return ns.toArray(new Node[ns.size()]);
+		}
+
+		public Node getChild(String key, int index) {
+			return children.get(key).get(index);
+		}
+
+		public Node getChild(String key) {
+			return getChild(key, 0);
+		}
+
+		public String[] getValues(String key) {
+			Node[] nodes = getChildren(key);
+			String[] strings = new String[nodes.length];
+			for (int i=0; i<nodes.length; i++)
+				strings[i] = nodes[i].getData();
+			return strings;
+		}
+
+		public String getValue(String key, int index) {
+			return getChild(key, index).data;
+		}
+
+		public String getValue(String key) {
+			return getValue(key, 0);
+		}
+
+		public String[] getChildKeys() {
+			Set<String> types = children.keySet();
 			return types.toArray(new String[types.size()]);
 		}
 		
 	}
 
 	public static class Builder {
-		private Tree state;
+		private Stack<Node> state;
 
 		public Builder() {
 			super();
 			this.state = null;
 		}
-		
-		public Tree build(String filename) throws IOException {
-			// Open the file
+	
+		public Node build(String filetype, BufferedReader br) throws IOException {
+			Node root = new Node(filetype);
+			state = new Stack<Node>();
+			state.push(root);
+			String line;
+			while( (line=br.readLine()) != null )
+				handleLine(line); // (may mutate state)
+			assert (state.size() == 1 && state.peek() == root) : "After reading the full file, the final state should be the root element.";
+			return root;
+		}
 
-			String strLine;
-
-			Tree root = new Tree(null, getFiletype(filename));
-
-			// Read File Line By Line
-			try (	FileReader fr = new FileReader(filename);
-					BufferedReader br = new BufferedReader(fr);) {
-				this.state = root;
-				while ((strLine = br.readLine()) != null) {
-					handleLine(strLine); // (may mutate state)
-				}
-				assert (root == this.state) : "After reading the full file, the final state should be the root element.";
-				return root;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				throw (e);
+		public Node build(String filename) throws IOException {
+			try (BufferedReader br = new BufferedReader(new FileReader(filename));) {
+				return build(getFiletype(filename), br);
 			}
 		}
 		
@@ -175,22 +169,23 @@ public class Parsing {
 						break;
 						
 					default:
-						System.out.println("WUT?!");
+						assert false: "Line could not be handled: '"+strLine+"'";
 					}
 				}
 			}
 		}
 
 		public void addValue(String key, String value) {
-			state.add(key, value);
+			state.peek().newValue(key, value);
 		}
 		
 		public void startGroup(String key) {
-			state = state.add(key);
+			Node newTree = state.peek().newChildren(key);
+			state.push(newTree);
 		}
 		
 		public void endGroup() {
-			state = state.parent;
+			state.pop();
 		}
 	}
 

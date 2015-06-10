@@ -44,8 +44,9 @@ public class Scene extends CPackFile implements Identifiable {
 		private boolean isActive = true;
 		private boolean isOneshot = true;  // UI calls this "retain after firing", which has the logic reversed. :-/
 		
-		Trigger(String id, boolean isActive, boolean isOneshot) {
+		Trigger(String id, String name, boolean isActive, boolean isOneshot) {
 			super(id);
+			this.name = name;
 			this.isActive = isActive;
 			this.isOneshot = isOneshot;
 		}

@@ -22,10 +22,10 @@ public class Layout {
 	private static class BaseLayoutStrategy {
 		void layout(Graph graph, Parsing.Node rootNode) {
 			Tree root = (Tree) rootNode;
-			for (String nodeType : root.getNodeTypes()) {
+			for (String nodeType : root.getChildKeys()) {
 				if (strategies.containsKey(nodeType)) {
 					BaseLayoutStrategy strategy = strategies.get(nodeType);
-					for (Parsing.Node node : root.getNodes(nodeType)) {
+					for (Parsing.Node node : root.getChildren(nodeType)) {
 						strategy.layout(graph, node);
 					}
 				}
@@ -54,7 +54,7 @@ public class Layout {
 		}
 		
 		private void makeEdges(Graph graph, Parsing.Tree root, String subtreeName, String sourceID) {
-			List<Parsing.Node> ops = root.getTree(subtreeName).getNodes("ops");
+			List<Parsing.Node> ops = root.getTree(subtreeName).getChildren("ops");
 			if (ops != null) {
 				for (Parsing.Node n : ops) {
 					Parsing.Tree op = (Parsing.Tree) n;
@@ -81,7 +81,7 @@ public class Layout {
 		}
 
 		public void makeFunctionList(Tree root, String tree) {
-			List<Parsing.Node> ops = root.getTree(tree).getNodes("ops");
+			List<Parsing.Node> ops = root.getTree(tree).getChildren("ops");
 			if (ops != null) {
 				for (Parsing.Node n : ops) {
 					Parsing.Tree op = (Parsing.Tree) n;
@@ -106,7 +106,7 @@ public class Layout {
 		}
 		
 		private void makeEdges(Graph graph, Tree root) {
-			List<Parsing.Node> ops = root.getTree("events").getNodes("ops");
+			List<Parsing.Node> ops = root.getTree("events").getChildren("ops");
 			if (ops != null) {
 				for (Parsing.Node n : ops) {
 					Parsing.Tree op = (Parsing.Tree) n;
