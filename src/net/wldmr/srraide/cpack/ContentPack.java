@@ -17,7 +17,7 @@ public class ContentPack extends CPackFile {
 	//private List<Map> maps;
 
 	private List<Scene> scenes = new ArrayList<>();
-	public List<Scene> getScenes() { return scenes; }
+	public List<Scene> accessScenes() { return scenes; }
 
 	//private List<Scratchpad> scratchpad;
 	//private List<Story> stories;

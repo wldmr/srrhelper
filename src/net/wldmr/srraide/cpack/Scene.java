@@ -2,6 +2,7 @@ package net.wldmr.srraide.cpack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class Scene extends CPackFile implements Identifiable {
 
@@ -28,17 +29,33 @@ public class Scene extends CPackFile implements Identifiable {
 
 	public static class Trigger extends Identifiable.ByID {
 		private String name;
-		//private List<Ops.Event> events = new ArrayList<>();
-		//public List<Ops.Event> accessEvents() { return events; }
-		//private List<Ops.Condition> conditions = new ArrayList<>();
-		//private List<Ops.Action> actions = new ArrayList<>();
-		//private List<Ops.Action> elseActions = new ArrayList<>();
-		//private boolean isActive;
-		//private boolean isOneshot;
+		private List<Event> events = new ArrayList<>();
+		public List<Event> accessEvents() { return events; }
+
+		private List<Condition> conditions = new ArrayList<>();
+		public List<Condition> accessConditions() { return conditions; }
+
+		private List<Action> actions = new ArrayList<>();
+		public List<Action> accessActions() { return actions; }
+
+		private List<Action> elseActions = new ArrayList<>();
+		public List<Action> accessElseActions() { return elseActions; }
+
+		private boolean isActive = true;
+		private boolean isOneshot = true;  // UI calls this "retain after firing", which has the logic reversed. :-/
 		
-		Trigger(String id) {
+		Trigger(String id, boolean isActive, boolean isOneshot) {
 			super(id);
+			this.isActive = isActive;
+			this.isOneshot = isOneshot;
 		}
+		
+		static abstract class Event extends Ops.Op
+			{ Event(String functionName) { super(functionName); } };
+		static abstract class Condition extends Ops.Op
+			{ Condition(String functionName) { super(functionName); } };
+		static abstract class Action extends Ops.Op
+			{ Action(String functionName) { super(functionName); } };
 	}
 
 	public static class MapEvent implements Identifiable {

@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import net.wldmr.srraide.Parsing.Node;
-import net.wldmr.srraide.Parsing.Tree;
+import net.wldmr.srraide.cpack.Parsing.Node;
+import net.wldmr.srraide.cpack.Parsing.Tree;
 
 public class Writer {
 

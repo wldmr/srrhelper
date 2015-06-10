@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.wldmr.srraide.Parsing.Tree;
+import net.wldmr.srraide.cpack.Parsing;
+import net.wldmr.srraide.cpack.Parsing.Tree;
 
 public class Layout {
 	
