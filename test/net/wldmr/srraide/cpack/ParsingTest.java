@@ -12,16 +12,29 @@ import org.junit.Test;
 
 public class ParsingTest extends Parsing {
 
-	private Builder builder;
+	private Node root;
 	
-	private Node buildFromString(String rootname, String input) throws IOException {
-		BufferedReader br = new BufferedReader(new StringReader(input));
-		return builder.build(rootname, br);
-	}
-
 	@Before
-	public void setUp() throws Exception {
-		builder = new Builder();
+	public void setUp() throws IOException {
+		String input =
+			  "  multivalue: 1\n"
+			+ "  multivalue: 2\n"
+			+ "  word: something\n"
+			+ "  string: \"This is a String Value\"\n"
+
+			+ "tree {\n"
+			+ "  subtree {\n"
+			+ "    item: whatever\n"
+			+ "  }\n"
+			+ "  subtree {\n"
+			+ "    item: dontcare\n"
+			+ "  }\n"
+			+ "}\n"
+			
+			+ "sumpn_else {\n"
+			+ "}\n";
+		BufferedReader br = new BufferedReader(new StringReader(input));
+		root = (new Builder()).build("ParsingTest", br);
 	}
 
 	@After
@@ -29,40 +42,49 @@ public class ParsingTest extends Parsing {
 	}
 	
 	@Test
-	public void testMultipleValues() throws IOException {
-		Node root = buildFromString("MultiValueTest",
-			( "keyword: literal_value\n"
-			+ "keyword: another_value\n"
-			+ "keyword: this_works")
-		);
+	public void testRootKey() throws IOException {
+		assertEquals("ParsingTest", root.getKey());
+	}
 
-		String[] nodes = root.getValues("keyword");
-		String[] expected = {"literal_value", "another_value", "this_works"};
-		assertArrayEquals(nodes, expected);
+	public void testStringValue() throws IOException {
+		assertEquals("This is a String Value", root.getValue("string"));
+	}
+
+	public void testWordValue() throws IOException {
+		assertEquals("something", root.getValue("word"));
+	}
+
+	@Test
+	public void testMultipleValues() throws IOException {
+		String[] expected = {"1", "2"};
+		String[] actuals = root.getValues("multivalue");
+		assertArrayEquals(expected, actuals);
 	}
 	
 	@Test
-	public void testSingleValue() throws IOException {
-		Node root = buildFromString("ValueTest", "   keyword: literal_value   ");
-		// (Spaces added for kicks)
-
-		assertEquals(root.getKey(), "ValueTest");
-
-		String[] nodeTypes = root.getChildKeys();
-		assertEquals(nodeTypes.length, 1);
-		assertEquals(nodeTypes[0], "keyword");
+	public void testChildKeys() throws IOException {
+		// Child keys are in order, based on first occurrence.
+		String[] expected = {"multivalue", "word", "string", "tree", "sumpn_else"};
+		String[] actuals = root.getChildKeys();
+		assertArrayEquals(expected, actuals);
+	}
 		
-		Node[] nodes = root.getChildren("keyword");
-		assertEquals(nodes.length, 1);
+	@Test
+	public void testSubTrees() throws IOException {
+		Node tree = root.getChild("tree");
+		assertSame(tree, root.getChild("tree", 0));
 
-		Node node = nodes[0];
-		String value = node.getData();
-		assertEquals(value, "literal_value");
-		
-		assertEquals(value, node.getData());
-		assertEquals(value, root.getValue("keyword"));
-		assertEquals(value, root.getValue("keyword", 0));
-		
+		Node[] subs = tree.getChildren("subtree");
+		assertEquals(2, subs.length);
+		assertEquals("whatever", subs[0].getValue("item"));
+		assertEquals("dontcare", subs[1].getValue("item"));
 	}
 	
+	@Test
+	public void testShortcuts() throws IOException {
+		String value = root.getChild("word").getData();
+
+		assertEquals(value, root.getValue("word"));
+		assertEquals(value, root.getValue("word", 0));
+	}
 }

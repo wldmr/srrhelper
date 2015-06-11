@@ -4,9 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -40,7 +39,7 @@ public class Parsing {
 		private Children children = null;
 
 		@SuppressWarnings("serial") // Compiler complained about unserializable somethingorother ...
-		private class Children extends HashMap<String, List<Node>> {}
+		private class Children extends LinkedHashMap<String, List<Node>> {}
 
 		public Node(String key, String value) {
 			this.key = key;
@@ -104,7 +103,7 @@ public class Parsing {
 		}
 
 		public String getValue(String key, int index) {
-			return getChild(key, index).data;
+			return getChild(key, index).getData();
 		}
 
 		public String getValue(String key) {
