@@ -14,7 +14,7 @@ public class SceneBuilder {
 		return scene;
 	}
 
-	private static Trigger makeTrigger(Node root) {
+	protected static Trigger makeTrigger(Node root) {
 		String id = root.getChild("idRef").getValue("id");
 		String name = root.getValue("name");
 		boolean isOneshot = Boolean.valueOf(root.getValue("is_oneshot"));
@@ -26,14 +26,14 @@ public class SceneBuilder {
 		return trigger;
 	}
 
-	private static Op makeOp(Node node) {
+	protected static Op makeOp(Node node) {
 		String functionName = node.getValue("functionName");
 		Arg[] args = makeArgs(node.getChildren("args"));
 		Op op = new Op(functionName, args);
 		return op;
 	}
 
-	private static Arg makeArg(Node node) {
+	protected static Arg makeArg(Node node) {
 		switch (node.getKey()) {
 		case "call_value":
 			String functionName = node.getValue("functionName");
@@ -47,14 +47,14 @@ public class SceneBuilder {
 			return Ops.int_value(Integer.valueOf(node.getData()));
 
 		case "float_value":
-			return Ops.float_value(Double.valueOf(node.getData()));
+			return Ops.float_value(Float.valueOf(node.getData()));
 
 		default:
-			throw new RuntimeException("Encountered a data I don't know: " + node.getKey());
+			throw new RuntimeException("Encountered data I don't know: " + node.getKey());
 		}
 	}
 
-	private static Arg[] makeArgs(Node[] nodes) {
+	protected static Arg[] makeArgs(Node[] nodes) {
 		Arg[] args = new Arg[nodes.length];
 		for (int i=0; i<nodes.length; i++)
 			args[i] = makeArg(nodes[i]);

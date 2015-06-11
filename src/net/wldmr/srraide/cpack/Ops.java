@@ -27,12 +27,27 @@ public class Ops {
 		}
 		
 		static interface Arg {};
-		static class Const<T> implements Arg {
+		static abstract class Const<T> implements Arg {
 			private T value;
 			Const(T value) { this.value = value; }
 			T getValue() { return value; }
+
 			@Override public String toString() { return value.toString(); }
+
+			@Override
+			public boolean equals(Object other) {
+				if (other.getClass() == value.getClass())
+					return value.equals(other);
+				else
+					return false;
+			}
 		}
+		static class StringValue extends Const<String>
+			{ StringValue(String value) { super(value); } }
+		static class IntValue extends Const<Integer>
+			{ IntValue(int value) { super(value); } }
+		static class FloatValue extends Const<Float>
+			{ FloatValue(float value) { super(value); } }
 		/** A reference. A container object can use it to search for the actual object referenced.
 		 * 
 		 * This is not directly found in the parse tree; it has to be inferred (from the function name),
@@ -51,8 +66,8 @@ public class Ops {
 			{ Function(String functionName, Arg... args) { super(functionName, args); } }
 		
 		static Function call_value(String functionName, Arg[] args) { return new Function(functionName, args); }
-		static Const<String> string_value(String x) { return new Const<String>(x); }
-		static Const<Integer> int_value(int x) { return new Const<Integer>(x); }
-		static Const<Double> float_value(double x) { return new Const<Double>(x); }
+		static StringValue string_value(String x) { return new StringValue(x); }
+		static IntValue int_value(int x) { return new IntValue(x); }
+		static FloatValue float_value(float x) { return new FloatValue(x); }
 		static <T extends Identifiable> Ref<T> ref(String id) { return new Ref<T>(id); }
 }
