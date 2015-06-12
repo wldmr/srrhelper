@@ -14,10 +14,15 @@ import java.util.regex.Pattern;
 public class Parsing {
 
 	private static enum RE {
-		group_start ("^\\s*(\\w+) \\{\\s*$"),
-		group_end ("^\\s*\\}\\s*$"),
-		property_string ("^\\s*(\\w+): \"([^\"]*)\"\\s*$"),
-		property_value ("^\\s*(\\w+): (\\w+)\\s*$");
+		/* Ordering matters here! PROPERTY_INT would be captured
+		 * by PROPERTY_WORD if it came after.
+		 */
+		GROUP_START ("^\\s*(\\w+) \\{\\s*$"),
+		GROUP_END ("^\\s*\\}\\s*$"),
+		PROPERTY_INT ("^\\s*(\\w+): (\\d+)\\s*$"),
+		PROPERTY_FLOAT ("^\\s*(\\w+): (\\d+\\.\\d+)\\s*$"),
+		PROPERTY_STRING ("^\\s*(\\w+): \"([^\"]*)\"\\s*$"),
+		PROPERTY_WORD ("^\\s*(\\w+): (\\w+)\\s*$");
 
 		private final Pattern pattern;
 
@@ -152,20 +157,25 @@ public class Parsing {
 		private void handleLine(String strLine) {
 			for (RE re : RE.values()) {
 				Matcher m = re.match(strLine);
+				/* Note: If we find a match, we return instead of break.
+				 * This is to reduce unnecessary (and spurious) checks.
+				 */
 				if (m.matches()) {
-					switch (re.name()) {
-					case "group_start":
+					switch (re) {
+					case GROUP_START:
 						startGroup(m.group(1));
-						break;
+						return;
 						
-					case "group_end":
+					case GROUP_END:
 						endGroup();
-						break;
+						return;
 						
-					case "property_string":
-					case "property_value":
+					case PROPERTY_STRING:
+					case PROPERTY_WORD:
+					case PROPERTY_INT:
+					case PROPERTY_FLOAT:
 						addValue(m.group(1), m.group(2));
-						break;
+						return;
 						
 					default:
 						assert false: "Line could not be handled: '"+strLine+"'";

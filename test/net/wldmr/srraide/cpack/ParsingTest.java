@@ -17,10 +17,12 @@ public class ParsingTest extends Parsing {
 	@Before
 	public void setUp() throws IOException {
 		String input =
-			  "  multivalue: 1\n"
-			+ "  multivalue: 2\n"
-			+ "  word: something\n"
-			+ "  string: \"This is a String Value\"\n"
+			  "multivalue: 1\n"
+			+ "multivalue: 2\n"
+			+ "int: 2\n"
+			+ "float: 2.3456\n"
+			+ "word: something\n"
+			+ "string: \"This is a String Value\"\n"
 
 			+ "tree {\n"
 			+ "  subtree {\n"
@@ -46,12 +48,24 @@ public class ParsingTest extends Parsing {
 		assertEquals("ParsingTest", root.getKey());
 	}
 
+	@Test
 	public void testStringValue() throws IOException {
 		assertEquals("This is a String Value", root.getValue("string"));
 	}
 
+	@Test
 	public void testWordValue() throws IOException {
 		assertEquals("something", root.getValue("word"));
+	}
+
+	@Test
+	public void testIntValue() throws IOException {
+		assertEquals("2", root.getValue("int"));
+	}
+
+	@Test
+	public void testFloatValue() throws IOException {
+		assertEquals("2.3456", root.getValue("float"));
 	}
 
 	@Test
@@ -64,7 +78,7 @@ public class ParsingTest extends Parsing {
 	@Test
 	public void testChildKeys() throws IOException {
 		// Child keys are in order, based on first occurrence.
-		String[] expected = {"multivalue", "word", "string", "tree", "sumpn_else"};
+		String[] expected = {"multivalue", "int", "float", "word", "string", "tree", "sumpn_else"};
 		String[] actuals = root.getChildKeys();
 		assertArrayEquals(expected, actuals);
 	}
