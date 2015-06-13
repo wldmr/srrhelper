@@ -7,6 +7,8 @@ public class Ops {
 		static class Op {
 			private String functionName;
 			private Arg[] args;
+
+			public String getFunctionName() { return functionName; }
 			public Arg[] getArgs() { return args; }
 			
 			Op(String functionName) {
